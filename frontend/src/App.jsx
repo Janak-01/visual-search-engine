@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-// The missing component is included below to resolve the import error.
 import NoResultFound from "./NoResultFound.jsx";
-import { Upload, Link, Search, Shirt, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Upload, Link, Search, Shirt, Loader2, Image as ImageIcon, X } from 'lucide-react';
 
 function App() {
 
@@ -16,43 +15,74 @@ function App() {
   const [imageUrl, setImageUrl] = useState("");
   const [category, setCategory] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
+  
+  // NEW STATE: To hold the local URL for the image preview
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+
+  // NEW STATE: For similarity score filtering
+  const [similarityThreshold, setSimilarityThreshold] = useState(0); // Default to 0 (show all)
 
 
   // --- Filtering Logic ---
   useEffect(() => {
-    if (!searchKeyword.trim()) {
-      setFilteredResults(allProducts);
-      return;
+    let tempResults = allProducts;
+    const threshold = similarityThreshold || 0;
+
+    // 1. Filter by Similarity Score (Only apply if threshold > 0)
+    if (threshold > 0) {
+        tempResults = tempResults.filter(product => product.similarity_score >= threshold);
     }
 
-    const regex = new RegExp(searchKeyword.trim(), 'i');
+    // 2. Filter by Search Keyword (Product Name)
+    if (searchKeyword.trim()) {
+      const regex = new RegExp(searchKeyword.trim(), 'i');
+      tempResults = tempResults.filter(product => {
+        return regex.test(product.product_name);
+      });
+    }
 
-    const newFilteredProducts = allProducts.filter(product => {
-      return regex.test(product.product_name);
-    });
+    setFilteredResults(tempResults);
 
-    setFilteredResults(newFilteredProducts);
-
-  }, [searchKeyword, allProducts]);
+  }, [searchKeyword, allProducts, similarityThreshold]);
 
   // --- Handlers for capturing inputs ---
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    
+    // Create preview URL and clear URL input when a file is selected
+    if (selectedFile) {
+        setImagePreviewUrl(URL.createObjectURL(selectedFile));
+        setImageUrl(""); // Clear URL input
+    } else {
+        setImagePreviewUrl(null);
+    }
   };
 
   const handleUrlChange = (e) => {
     setImageUrl(e.target.value);
+    
+    // Clear file input and preview when user starts typing a URL
+    setFile(null);
+    setImagePreviewUrl(null);
+    document.getElementById("fileInput").value = "";
   };
 
   const handleCategoryChange = (e) => {
     setCategory(e.target.value);
+  };
+  
+  const clearFileAndPreview = () => {
+    setFile(null);
+    setImagePreviewUrl(null);
+    document.getElementById("fileInput").value = "";
   };
 
 
   // --- Submit Handlers ---
   const handleFileSubmit = async () => {
     // NOTE: Replace alert() with a custom UI modal for production
-    if (!file) return alert("Please select a file first!");
+    if (!file) return console.error("Please select a file first!"); // Using console.error instead of alert
 
     setIsLoading(true); // Start loading
     const formData = new FormData();
@@ -74,8 +104,7 @@ function App() {
       setIsLoaded(true); // Data has been loaded at least once
 
       setCategory("");
-      setFile(null);
-      document.getElementById("fileInput").value = "";
+      clearFileAndPreview(); // Clear file and preview after submit
 
     } catch (error) {
       console.error("Error searching by file:", error);
@@ -88,7 +117,7 @@ function App() {
 
   const handleUrlSubmit = async () => {
     // NOTE: Replace alert() with a custom UI modal for production
-    if (!imageUrl) return alert("Please enter an image URL");
+    if (!imageUrl) return console.error("Please enter an image URL"); // Using console.error instead of alert
 
     setIsLoading(true); // Start loading
     const formData = new FormData();
@@ -113,6 +142,8 @@ function App() {
 
       setCategory("");
       setImageUrl("");
+      setFile(null);
+      setImagePreviewUrl(null); // Clear file and preview after submit
     } catch (err) {
       console.error("Error searching by URL:", err);
       // Optionally handle error message display
@@ -150,11 +181,24 @@ function App() {
               <label className="block text-lg font-semibold text-gray-700 mb-3">Upload File</label>
               <div className="border-4 border-dashed border-indigo-400/70 bg-indigo-50/50 rounded-2xl p-12 text-center transition duration-300 hover:border-indigo-600 hover:bg-indigo-100/70 shadow-inner">
                 <p className="text-indigo-800 font-bold text-xl mb-6">Drop your image here, or use the button below</p>
-
-                {/* Visual Placeholder/Indicator */}
-                <div className="mb-6 flex justify-center">
-                  {file ? (
-                    <div className="text-indigo-600 font-semibold text-sm bg-indigo-200 py-2 px-4 rounded-full max-w-xs truncate">{file.name}</div>
+                
+                {/* Image Preview / Placeholder */}
+                <div className="mb-6 flex justify-center h-40">
+                  {imagePreviewUrl ? (
+                    <div className="relative">
+                        <img 
+                            src={imagePreviewUrl} 
+                            alt="Uploaded Preview" 
+                            className="h-40 w-auto object-contain rounded-lg border-4 border-indigo-500 shadow-xl"
+                        />
+                        <button 
+                            onClick={clearFileAndPreview}
+                            className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition"
+                            aria-label="Remove uploaded image"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
                   ) : (
                     <ImageIcon className="w-16 h-16 text-indigo-500/80" />
                   )}
@@ -170,47 +214,47 @@ function App() {
                 <button
                   className="mt-8 w-full md:w-auto px-12 py-4 bg-indigo-600 text-white font-bold rounded-full shadow-lg shadow-indigo-500/50 hover:bg-indigo-700 transition duration-200 transform hover:scale-[1.02] flex items-center justify-center mx-auto gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleFileSubmit}
-                  disabled={isLoading || !file}
+                  disabled={isLoading || !file} 
                 >
                   {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : <Search className="w-5 h-5" />}
                   {isLoading ? "Searching by File..." : "Search by Uploaded File"}
                 </button>
               </div>
             </div>
-
+            
             {/* Divider (Col 3) */}
             <div className="flex flex-row lg:flex-col items-center justify-center py-6 lg:py-0">
-              <div className="flex-1 border-t-2 lg:border-t-0 lg:border-r-2 border-gray-200 w-full h-full"></div>
-              <span className="px-6 text-gray-600 font-extrabold text-2xl lg:text-3xl text-indigo-400">OR</span>
-              <div className="flex-1 border-t-2 lg:border-t-0 lg:border-r-2 border-gray-200 w-full h-full"></div>
+                <div className="flex-1 border-t-2 lg:border-t-0 lg:border-r-2 border-gray-200 w-full h-full"></div>
+                <span className="px-6 text-gray-600 font-extrabold text-2xl lg:text-3xl text-indigo-400">OR</span>
+                <div className="flex-1 border-t-2 lg:border-t-0 lg:border-r-2 border-gray-200 w-full h-full"></div>
             </div>
 
             {/* URL Input (Col 3) */}
             <div className="lg:col-span-1 flex flex-col justify-start">
-              <label htmlFor="imageUrlInput" className="block text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                <Link className="text-indigo-600 w-5 h-5" /> Enter Image URL
-              </label>
-              <input
-                id="imageUrlInput"
-                type="text"
-                placeholder="https://example.com/image.jpg"
-                value={imageUrl}
-                onChange={handleUrlChange}
-                className="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 shadow-inner text-base mb-6"
-              />
-              <button
-                className="w-full px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition duration-200 transform hover:scale-[1.02] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handleUrlSubmit}
-                disabled={isLoading || !imageUrl}
-              >
-                {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : <Search className="w-5 h-5" />}
-                {isLoading ? "Searching by URL..." : "Search by URL"}
-              </button>
+                <label htmlFor="imageUrlInput" className="block text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <Link className="text-indigo-600 w-5 h-5" /> Enter Image URL
+                </label>
+                <input
+                    id="imageUrlInput"
+                    type="text"
+                    placeholder="https://example.com/image.jpg"
+                    value={imageUrl}
+                    onChange={handleUrlChange}
+                    className="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 shadow-inner text-base mb-6"
+                />
+                <button
+                    className="w-full px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition duration-200 transform hover:scale-[1.02] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleUrlSubmit}
+                    disabled={isLoading || !imageUrl}
+                >
+                    {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : <Search className="w-5 h-5" />}
+                    {isLoading ? "Searching by URL..." : "Search by URL"}
+                </button>
             </div>
           </div>
 
 
-          {(file || imageUrl) && (
+          {((file || imageUrl) || imagePreviewUrl) && (
             <div className="border-t-2 border-gray-100 pt-8 mt-10">
               <h3 className="text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
                 <Shirt className="text-indigo-500 w-5 h-5" /> Narrow Your Search (Optional)
@@ -244,14 +288,27 @@ function App() {
 
           {/* CONDITIONAL: Only show search bar if products have been loaded */}
           {isLoaded && (
-            <div className="mb-10 flex gap-4 items-center">
+            <div className="mb-10 flex flex-col md:flex-row gap-4 items-center">
+              {/* Product Name Keyword Search */}
               <input
                 type="text"
                 placeholder="Filter results by product name..."
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                className="flex-1 px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 shadow-inner text-base"
+                className="flex-1 w-full md:w-auto px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 shadow-inner text-base"
               />
+              {/* Similarity Score Filter (NEW) */}
+              <select
+                value={similarityThreshold}
+                onChange={(e) => setSimilarityThreshold(parseFloat(e.target.value))}
+                className="w-full md:w-auto px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 shadow-inner text-base bg-white"
+              >
+                <option value={0}>Min. Similarity Score (All)</option>
+                <option value={0.6}>0.6 or Higher (High Match)</option>
+                <option value={0.5}>0.5 or Higher</option>
+                <option value={0.4}>0.4 or Higher</option>
+                <option value={0.3}>0.3 or Higher (Lower Match)</option>
+              </select>
             </div>
           )}
 
@@ -280,14 +337,21 @@ function App() {
                 >
                   <div className="w-full h-48 overflow-hidden rounded-lg mb-4 bg-gray-100 border border-gray-100">
                     <img
-                      src={item.image_url}
-                      onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/256x256/E5E7EB/4B5563?text=No+Image"; }}
-                      alt={item.product_name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        src={item.image_url}
+                        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/256x256/E5E7EB/4B5563?text=No+Image"; }}
+                        alt={item.product_name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>
                   <h3 className="font-extrabold text-center text-xl text-gray-900 break-words w-full mt-2 group-hover:text-indigo-600 transition-colors duration-200">{item.product_name}</h3>
-                  <p className="text-sm text-gray-500 mt-1">Product ID: <span className="font-mono text-xs">{item.product_id?.substring(0, 8)}...</span></p>
+                  {/* Updated display to show Category instead of Product ID */}
+                  <p className="text-sm font-medium text-gray-600 mt-1">
+                    Category: <span className="font-semibold text-indigo-500">{item.category}</span>
+                  </p>
+                  {/* Display Similarity Score */}
+                  <p className="text-sm text-gray-500 mt-1">
+                    Similarity: <span className="font-mono text-xs font-bold text-green-600">{(item.similarity_score * 100).toFixed(2)}%</span>
+                  </p>
                 </div>
               ))
             ) : (

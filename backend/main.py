@@ -210,7 +210,7 @@ async def ping():
 @app.post("/api/search-by-file")
 async def search_by_file(
     file: UploadFile = File(...),
-    limit: int = Form(10),
+    limit: int = Form(30),
     min_similarity: float = Form(0.0),
     category: Optional[str] = Form(None)
 ):
@@ -281,7 +281,7 @@ async def search_by_file(
 @app.post("/api/search-by-url")
 async def search_by_url(
     image_url: str = Form(...),
-    limit: int = Form(10),
+    limit: int = Form(30),
     min_similarity: float = Form(0.0),
     category: Optional[str] = Form(None)
 ):
