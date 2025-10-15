@@ -1,6 +1,16 @@
-# Visual Image Matcher
+<h1 align="center">🖼️ Visual Image Matcher</h1>
 
-Visual Image Matcher is a web application to find visually similar products. Users can upload an image or provide an image URL and get a list of products that look similar. The application also allows filtering results by category or product name.
+<p align="center">
+Free and open-source, fully customizable <b>professional Visual Image Matcher</b><br>
+🔗 <a href="https://your-frontend.vercel.app" target="_blank">Live Demo</a> |
+<a href="https://janaksorout-visual-image-backend-deploy.hf.space" target="_blank">Backend API</a>
+</p>
+
+---
+
+### 🧠 Overview
+Visual Image Matcher is a full-stack project that allows users to upload or link an image and find visually similar images using deep learning embeddings.
+
 
 ## Features
 
@@ -54,12 +64,12 @@ source venv/bin/activate       # macOS/Linux
 pip install -r requirements.txt
 uvicorn main:app --reload
 
-Frontend
+### Frontend
 cd frontend
 npm install
 npm run dev
 
-Environment Variables
+## Environment Variables
 
 Create a .env file in the root directory with:
 
@@ -69,7 +79,7 @@ QDRANT_API_KEY=your_qdrant_api_key
 QDRANT_COLLECTION_NAME=your_collection_name
 FRONTEND_URL=http://localhost:5173
 
-Usage
+## Usage
 
 Open the frontend in a browser (http://localhost:5173).
 
