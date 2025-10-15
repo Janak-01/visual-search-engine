@@ -11,6 +11,7 @@ Free and open-source, fully customizable <b>professional Visual Image Matcher</b
 ### 🧠 Overview
 Visual Image Matcher is a full-stack project that allows users to upload or link an image and find visually similar images using deep learning embeddings.
 
+---
 
 ## Features
 
@@ -20,6 +21,8 @@ Visual Image Matcher is a full-stack project that allows users to upload or link
 - Fast similarity search using Qdrant vector database
 - Responsive and interactive UI using React & Tailwind CSS
 
+---
+
 ## Tech Stack
 
 - **Frontend:** React, Tailwind CSS, Lucide-React
@@ -27,6 +30,8 @@ Visual Image Matcher is a full-stack project that allows users to upload or link
 - **Database:** Qdrant (vector search)
 - **ML/AI:** CLIP embeddings using `sentence-transformers`
 - **Other:** Python-dotenv, PIL, Requests
+
+---
 
 ## Folder Structure
 
@@ -48,11 +53,14 @@ visual-image-matcher/
 ├── .gitignore
 └── requirements.txt
 
+yaml
+Copy code
 
+---
 
 ## Installation
 
-### Backend
+### 🖥️ Backend
 
 ```bash
 cd backend
@@ -63,27 +71,24 @@ source venv/bin/activate       # macOS/Linux
 
 pip install -r requirements.txt
 uvicorn main:app --reload
-
 💻 Frontend
-
-```bash
+bash
+Copy code
 cd frontend
 npm install
 npm run dev
+⚙️ Environment Variables
+Create a .env file inside the frontend directory with the following values:
 
-Environment Variables
-
-Create a .env file in the root directory with:
-```bash
+bash
+Copy code
 VITE_BACKEND_URL=http://localhost:8000
 QDRANT_URL=your_qdrant_url
 QDRANT_API_KEY=your_qdrant_api_key
 QDRANT_COLLECTION_NAME=your_collection_name
 FRONTEND_URL=http://localhost:5173
-
-## Usage
-
-Open the frontend in a browser (http://localhost:5173).
+🚀 Usage
+Open the frontend in your browser → http://localhost:5173
 
 Upload an image or provide an image URL.
 
