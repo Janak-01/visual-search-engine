@@ -34,7 +34,7 @@ Visual Image Matcher is a full-stack project that allows users to upload or link
 ---
 
 ## Folder Structure
-
+```bash
 visual-image-matcher/
 ├── backend/
 │ ├── embedding_generator.py
@@ -53,8 +53,7 @@ visual-image-matcher/
 ├── .gitignore
 └── requirements.txt
 
-yaml
-Copy code
+```
 
 ---
 
