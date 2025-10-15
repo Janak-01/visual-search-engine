@@ -68,26 +68,33 @@ python -m venv venv
 source venv/Scripts/activate   # Windows
 # or
 source venv/bin/activate       # macOS/Linux
+```
+Installing requiremnts
 
+```bash
 pip install -r requirements.txt
 uvicorn main:app --reload
-💻 Frontend
-bash
-Copy code
+```
+
+### 💻 Frontend
+
+```bash
 cd frontend
 npm install
 npm run dev
-⚙️ Environment Variables
+```
+### ⚙️ Environment Variables
 Create a .env file inside the frontend directory with the following values:
 
-bash
-Copy code
+```bash
 VITE_BACKEND_URL=http://localhost:8000
 QDRANT_URL=your_qdrant_url
 QDRANT_API_KEY=your_qdrant_api_key
 QDRANT_COLLECTION_NAME=your_collection_name
 FRONTEND_URL=http://localhost:5173
-🚀 Usage
+```
+
+## 🚀 Usage
 Open the frontend in your browser → http://localhost:5173
 
 Upload an image or provide an image URL.
