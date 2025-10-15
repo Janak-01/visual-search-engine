@@ -64,7 +64,9 @@ source venv/bin/activate       # macOS/Linux
 pip install -r requirements.txt
 uvicorn main:app --reload
 
-### Frontend
+### 💻 Frontend
+
+```bash
 cd frontend
 npm install
 npm run dev
@@ -72,7 +74,7 @@ npm run dev
 ## Environment Variables
 
 Create a .env file in the root directory with:
-
+```bash
 VITE_BACKEND_URL=http://localhost:8000
 QDRANT_URL=your_qdrant_url
 QDRANT_API_KEY=your_qdrant_api_key
