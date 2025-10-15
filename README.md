@@ -85,11 +85,16 @@ npm run dev
 ### ⚙️ Environment Variables
 Create a .env file inside the frontend directory with the following values:
 
+#### frontend (.env)
 ```bash
+
 VITE_BACKEND_URL=http://localhost:8000
 QDRANT_URL=your_qdrant_url
 QDRANT_API_KEY=your_qdrant_api_key
 QDRANT_COLLECTION_NAME=your_collection_name
+```
+#### backend (.env)
+```bash
 FRONTEND_URL=http://localhost:5173
 ```
 
