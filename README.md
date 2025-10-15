@@ -64,14 +64,14 @@ source venv/bin/activate       # macOS/Linux
 pip install -r requirements.txt
 uvicorn main:app --reload
 
-### 💻 Frontend
+💻 Frontend
 
 ```bash
 cd frontend
 npm install
 npm run dev
 
-## Environment Variables
+Environment Variables
 
 Create a .env file in the root directory with:
 ```bash
