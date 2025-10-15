@@ -2,8 +2,8 @@
 
 <p align="center">
 Free and open-source, fully customizable <b>professional Visual Image Matcher</b><br>
-🔗 <a href="https://your-frontend.vercel.app" target="_blank">Live Demo</a> |
-<a href="https://janaksorout-visual-image-backend-deploy.hf.space" target="_blank">Backend API</a>
+🔗 <a href="visual-search-engine-six.vercel.app" target="_blank">Live Demo</a> |
+
 </p>
 
 ---
